@@ -1,0 +1,43 @@
+version: '3.1'
+services:
+  front:
+    build: .
+    command: bundle exec rails s -p 3000 -b '0.0.0.0'
+    ports:
+      - 3001:3000
+    depends_on:
+      - mysql
+    working_dir: /evapp/app
+    volumes:
+      - .:/evapp
+    tmpfs:
+      - /evapp/tmp/
+      
+    networks:
+      - shared
+    stdin_open: true
+    tty: true
+
+  mysql:
+    image: mysql
+    hostname: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: secure
+    security_opt:
+      - seccomp:unconfined
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3307"
+    networks:
+      - shared
+
+volumes:
+  mysql_data:
+
+networks:
+  shared: 
+    external:
+      name: shared
